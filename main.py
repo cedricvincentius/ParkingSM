@@ -5,6 +5,7 @@ from models.floor_manager import FloorManager
 from services.parking_system import ParkingSystem
 from gui.gui import ParkingGUI
 import os
+from datetime import datetime
 
 def clear_screen():
     # Clear the console screen
@@ -58,19 +59,38 @@ def main():
                     users = User.fetch_users(db_manager)
                     print("\nUsers:")
                     for user in users:
-                        print(user)
+                        print(f"Name: {user['name']}, Role: {user['role']}, Login Time: {user['login_time']}")
                 elif choice == "2":
-                    query = "SELECT * FROM ongoing_parking"
+                    query = "SELECT police_number, vehicle_type, floor, start_time FROM ongoing_parking"
                     ongoing_records = db_manager.execute(query)
                     print("\nOngoing Parking Records:")
                     for record in ongoing_records:
-                        print(record)
+                        # Separate the date and time
+                        start_time = record["start_time"]
+                        
+                        # Format the date and time
+                        date = start_time.strftime("%d-%m-%Y")  # Format: dd-mm-yyyy
+                        time = start_time.strftime("%H:%M:%S")  # Format: hh:mm:ss
+                        
+                        print(f"Police Number: {record['police_number']}, Vehicle Type: {record['vehicle_type']}, Floor: {record['floor']}, Date: {date}, Time: {time}")
+
                 elif choice == "3":
-                    query = "SELECT * FROM parking_history"
-                    history = db_manager.execute(query)
+                    query = "SELECT id, police_number, vehicle_type, fee, start_time FROM parking_history"
+                    history_records = db_manager.execute(query)
                     print("\nParking History:")
-                    for record in history:
-                        print(record)
+                    for record in history_records:
+                        # Separate the date and time
+                        start_time = record["start_time"]
+                        
+                        # Format the date and time
+                        date = start_time.strftime("%d-%m-%Y")  # Format: dd-mm-yyyy
+                        time = start_time.strftime("%H:%M:%S")  # Format: hh:mm:ss
+                        
+                        # Format the fee as an integer (without decimals)
+                        fee = int(record["fee"])  # Convert fee to an integer
+                        
+                        print(f"ID: {record['id']}, Police Number: {record['police_number']}, Vehicle Type: {record['vehicle_type']}, Fee: Rp. {fee}, Date: {date}, Time: {time}")
+                        
                 elif choice == "4":
                     record_id = int(input("Enter the ID of the record to delete: ").strip())
                     query = "DELETE FROM parking_history WHERE id = %s"

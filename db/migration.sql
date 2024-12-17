@@ -62,3 +62,5 @@ INSERT INTO floors (floor_number, total_slots, available_slots) VALUES
 (1, 24, 24),
 (2, 8, 8),
 (3, 8, 8);
+
+ALTER TABLE users ADD COLUMN login_time TIMESTAMP;
