@@ -1,6 +1,6 @@
 class Vehicle:
     VEHICLE_SIZES = {
-        "bike": 0.25,  # 4 bikes per slot
+        "bike": 1,  # 4 bikes per slot
         "car": 1,      # 1 car per slot
         "bus": 4       # 1 bus takes 4 slots
     }

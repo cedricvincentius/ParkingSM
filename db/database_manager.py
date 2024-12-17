@@ -21,8 +21,10 @@ class DatabaseManager:
 
     def execute(self, query, params=None):
         self.cursor.execute(query, params)
-        self.connection.commit()
         return self.cursor.fetchall() if self.cursor.description else None
+
+    def commit(self):
+        self.connection.commit()  # Commit the current transaction
 
     def close(self):
         self.cursor.close()
