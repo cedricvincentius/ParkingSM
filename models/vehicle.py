@@ -1,8 +1,8 @@
 class Vehicle:
     VEHICLE_SIZES = {
-        "bike": 1,  # 4 bikes per slot
-        "car": 1,      # 1 car per slot
-        "bus": 4       # 1 bus takes 4 slots
+        "bike": 1, 
+        "car": 1,  
+        "bus": 4 
     }
     FEES_PER_HOUR = {
         "bike": 2000,

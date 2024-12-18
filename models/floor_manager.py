@@ -11,10 +11,10 @@ class FloorManager:
         query = "UPDATE floors SET available_slots = available_slots - %s WHERE floor_number = %s"
         print(f"Updating slots: Reducing {count} slots on floor {floor_number}")
         self.db_manager.execute(query, (count, floor_number))
-        self.db_manager.commit()  # Commit the transaction
+        self.db_manager.commit()  
 
     def restore_slots(self, floor_number, count):
         query = "UPDATE floors SET available_slots = available_slots + %s WHERE floor_number = %s"
         print(f"Restoring slots: Increasing {count} slots on floor {floor_number}")
         self.db_manager.execute(query, (count, floor_number))
-        self.db_manager.commit()  # Commit the transaction
+        self.db_manager.commit()  

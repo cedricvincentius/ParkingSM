@@ -1,8 +1,8 @@
-import bcrypt  # Make sure to install bcrypt library
+import bcrypt
 from db.database_manager import DatabaseManager
 
 class User:
-    VALID_ROLES = ['admin', 'user']  # Define valid roles
+    VALID_ROLES = ['admin', 'user'] 
 
     def __init__(self, db_manager, name, role, password=None):
         if role not in User.VALID_ROLES:
@@ -10,12 +10,12 @@ class User:
         self.db_manager = db_manager
         self.name = name
         self.role = role
-        self.password = password  # This should be the plain text password when creating a user
+        self.password = password
 
     def verify_password(self, password):
-        # Verify the password against the stored hashed password
         if isinstance(self.password, str):
             stored_password_bytes = self.password.encode('utf-8')
+            
         else:
             stored_password_bytes = self.password
 
@@ -42,9 +42,9 @@ class User:
 
             if user.verify_password(password):
                 print(f"Login successful! Welcome, {name}!")
-                return True  # Indicate successful login
+                return True 
             else:
                 print("Invalid password. Please try again.")
         else:
             print("User  not found. Please register first.")
-        return False  # Indicate failed login
+        return False

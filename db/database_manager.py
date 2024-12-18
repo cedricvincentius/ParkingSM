@@ -26,18 +26,18 @@ class DatabaseManager:
     def execute(self, query, params=None):
         try:
             self.cursor.execute(query, params)
-            if self.cursor.description:  # If the query returns data
+            if self.cursor.description:  
                 return self.cursor.fetchall()
-            else:  # If it's an INSERT/UPDATE/DELETE
-                self.connection.commit()  # Commit the transaction
+            else:  
+                self.connection.commit()  
                 return None
         except Exception as e:
             print(f"Error executing query: {e}")
-            self.connection.rollback()  # Rollback in case of error
+            self.connection.rollback() 
 
     def commit(self):
-        self.connection.commit()  # Commit the current transaction
-
+        self.connection.commit()  
+        
     def close(self):
         self.cursor.close()
         self.connection.close()
