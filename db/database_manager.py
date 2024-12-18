@@ -15,8 +15,9 @@ class DatabaseManager:
                 dbname="parking_db",
                 user="postgres",
                 password="postgres",
-                host="172.27.222.139",
-                port="5432"
+                host="172.27.208.1",
+                port="5432",
+                sslmode='disable'
             )
             self.cursor = self.connection.cursor(cursor_factory=RealDictCursor)
             print("Database connection successful.")
