@@ -15,7 +15,7 @@ class DatabaseManager:
                 dbname="parking_db",
                 user="postgres",
                 password="postgres",
-                host="localhost",
+                host="172.27.222.139",
                 port="5432"
             )
             self.cursor = self.connection.cursor(cursor_factory=RealDictCursor)
