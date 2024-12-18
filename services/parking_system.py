@@ -6,60 +6,84 @@ class ParkingSystem:
         self.db = db
         self.floor_manager = floor_manager
 
-    def park_vehicle(self, user_id, vehicle):
-        # Get police number from user
-        police_number = input("Enter the police number (license plate) of the vehicle: ").strip()
+    def park_vehicle(self, user_name, vehicle, police_number):
+        try:
+            # Fetch user_id from the database based on user_name
+            query = "SELECT id FROM users WHERE name = %s"
+            user_record = self.db.execute(query, (user_name,))
+            
+            if not user_record:
+                print("User  not found.")
+                return False
+            
+            user_id = user_record[0]['id']  # Assuming 'id' is the column name for user ID
 
-        # Determine the floor based on the vehicle type
-        if vehicle.vehicle_type == "bike":
-            floor_number = 1
-        elif vehicle.vehicle_type == "car":
-            floor_number = 2
-        elif vehicle.vehicle_type == "bus":
-            # Check available slots for both the 2nd and 3rd floors
-            available_slots_2nd = self.floor_manager.get_available_slots(2)
-            available_slots_3rd = self.floor_manager.get_available_slots(3)
+            # Determine the floor based on the vehicle type
+            if vehicle.vehicle_type == "bike":
+                floor_number = 1
+            elif vehicle.vehicle_type == "car":
+                # Check available slots for both the 2nd and 3rd floors
+                available_slots_2nd = self.floor_manager.get_available_slots(2)
+                available_slots_3rd = self.floor_manager.get_available_slots(3)
 
-            # Calculate used slots
-            used_slots_2nd = 5 - available_slots_2nd  # Assuming total slots are 5
-            used_slots_3rd = 5 - available_slots_3rd  # Assuming total slots are 5
+                # Debugging print statements
+                print(f"Available slots on 2nd floor: {available_slots_2nd}")
+                print(f"Available slots on 3rd floor: {available_slots_3rd}")
+
+                # Decision logic for parking the car
+                if available_slots_2nd >= vehicle.size:
+                    floor_number = 2
+                elif available_slots_3rd >= vehicle.size:
+                    floor_number = 3
+                else:
+                    print("No available slots for the car.")
+                    return False
+            elif vehicle.vehicle_type == "bus":
+                # Check available slots for both the 2nd and 3rd floors
+                available_slots_2nd = self.floor_manager.get_available_slots(2)
+                available_slots_3rd = self.floor_manager.get_available_slots(3)
+
+                # Debugging print statements
+                print(f"Available slots on 2nd floor: {available_slots_2nd}")
+                print(f"Available slots on 3rd floor: {available_slots_3rd}")
+
+                # Decision logic for parking the bus
+                if available_slots_2nd >= vehicle.size:
+                    floor_number = 2
+                elif available_slots_3rd >= vehicle.size:
+                    floor_number = 3
+                else:
+                    print("No available slots for the bus.")
+                    return False
+            else:
+                print("Invalid vehicle type!")
+                return False
+
+            # Check available slots for the determined floor
+            available_slots = self.floor_manager.get_available_slots(floor_number)
+            required_slots = vehicle.size  # Assuming vehicle.size is defined
 
             # Debugging print statements
-            print(f"Used slots on 2nd floor: {used_slots_2nd}")
-            print(f"Used slots on 3rd floor: {used_slots_3rd}")
+            print(f"Available slots on floor {floor_number}: {available_slots}")
+            print(f"Required slots for {vehicle.vehicle_type}: {required_slots}")
 
-            # Decision logic for parking the bus
-            if used_slots_2nd < 5 and available_slots_2nd >= vehicle.size:
-                floor_number = 2
-            elif used_slots_3rd < 5 and available_slots_3rd >= vehicle.size:
-                floor_number = 3
+            if available_slots >= required_slots:
+                # Update the slots and log the parking in the database
+                self.floor_manager.update_slots(floor_number, required_slots)
+                query = """
+                    INSERT INTO ongoing_parking (user_id, police_number, vehicle_type, floor, slot_count, start_time)
+                    VALUES (%s, %s, %s, %s, %s, NOW())
+                """
+                # Debugging print statement to check the values being inserted
+                print(f"Inserting into ongoing_parking: user_id={user_id}, police_number={police_number}, vehicle_type={vehicle.vehicle_type}, floor={floor_number}, slot_count={required_slots}")
+                self.db.execute(query, (user_id, police_number, vehicle.vehicle_type, floor_number, required_slots))
+                print(f"{vehicle.vehicle_type.capitalize()} with police number {police_number} parked successfully on floor {floor_number}!")
+                return True
             else:
-                print("No available slots for the bus.")
+                print(f"Not enough available slots on floor {floor_number} for a {vehicle.vehicle_type}.")
                 return False
-        else:
-            print("Invalid vehicle type!")
-            return False
-
-        # Check available slots for the determined floor
-        available_slots = self.floor_manager.get_available_slots(floor_number)
-        required_slots = vehicle.size  # Assuming vehicle.size is defined
-
-        # Debugging print statements
-        print(f"Available slots on floor {floor_number}: {available_slots}")
-        print(f"Required slots for {vehicle.vehicle_type}: {required_slots}")
-
-        if available_slots >= required_slots:
-            # Update the slots and log the parking in the database
-            self.floor_manager.update_slots(floor_number, required_slots)
-            query = """
-                INSERT INTO ongoing_parking (user_id, police_number, vehicle_type, floor, slot_count, start_time)
-                VALUES (%s, %s, %s, %s, %s, NOW())
-            """
-            self.db.execute(query, (user_id, police_number, vehicle.vehicle_type, floor_number, required_slots))
-            print(f"{vehicle.vehicle_type.capitalize()} with police number {police_number} parked successfully on floor {floor_number}!")
-            return True
-        else:
-            print(f"Not enough available slots on floor {floor_number} for a {vehicle.vehicle_type}.")
+        except Exception as e:
+            print(f"Error while parking vehicle: {e}")
             return False
 
     def unpark_vehicle(self, police_number):
@@ -78,7 +102,7 @@ class ParkingSystem:
         start_time = record["start_time"]
 
         # Calculate fee
-        end_time = datetime.now()
+        end_time = datetime.now()  # This is the exit time
         fee = ParkingHistory.calculate_fee(vehicle_type, start_time, end_time)  # Using the imported class
 
         # Log history and delete from ongoing parking

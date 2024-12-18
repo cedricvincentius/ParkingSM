@@ -1,8 +1,10 @@
 -- Create users table
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    role VARCHAR(10) NOT NULL CHECK (role IN ('admin', 'user'))
+    name VARCHAR(100) NOT NULL,
+    role VARCHAR(10) CHECK (role IN ('admin', 'user')) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create ongoing_parking table
@@ -62,5 +64,3 @@ INSERT INTO floors (floor_number, total_slots, available_slots) VALUES
 (1, 24, 24),
 (2, 8, 8),
 (3, 8, 8);
-
-ALTER TABLE users ADD COLUMN login_time TIMESTAMP;
